@@ -1,16 +1,72 @@
 import streamlit as st
+import hashlib
+import base64
 from streamlit_option_menu import option_menu
 import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
+import warnings
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 from sklearn.ensemble import StackingClassifier
 from sklearn.naive_bayes import GaussianNB
+from twilio.rest import Client
+from streamlit_lottie import st_lottie
+import requests
+import re
 st.set_page_config(page_title="HNN",page_icon="logo1.png",layout="wide")
+warnings.filterwarnings("ignore")
 with st.sidebar:
     selected=option_menu("Menu",["Predictor"])
+if 'count' not in st.session_state:
+	st.session_state.count = 0
+if (selected=="Home"):
+        if st.session_state.count == 1:
+            def add_bg_from_local(image_file):
+                with open(image_file, "rb") as image_file:
+                    encoded_string = base64.b64encode(image_file.read())
+                st.markdown(
+                f"""
+                <style>
+                .stApp {{
+                    background-image: url(data:image/{"jpg"};base64,{encoded_string.decode()});
+                    background-size: cover
+                }}
+                </style>
+                """,
+                unsafe_allow_html=True
+                )
+            css = """
+            body{
+            background-image:url(img);
+            background-size: cover;
+            text-align:center;
+            color:Gray;
+            }
+            [data-testid="stImage"]{
+            padding-top:5px;
+            margin-left: auto;
+            margin-right: auto;
+            height:30%;
+            width:30%;
+            }"""
+            st.write(f'<style>{css}</style>', unsafe_allow_html=True)
+            st.write('<span style="font-size:30px;color:white"><b>⚕️Health Network Navigator(HNN)⚕️</b></span>',unsafe_allow_html=True)
+            st.image("logo1.png")
+            st.write('<span style="font-size:30px;color:white"><b>🔍Modern way to predict the disease by provided symptoms and find the best doctor to cure🔎</b></span>',unsafe_allow_html=True) 
+            add_bg_from_local('black_back.jpg')
+            def load_lottieurl(url):
+                r=requests.get(url)
+                if r.status_code!=200:
+                    return None
+                return r.json() 
+            lottie_coding=load_lottieurl("https://assets1.lottiefiles.com/private_files/lf30_tul1qoqd.json")
+            st_lottie(lottie_coding,height=300,key="coding") 
+        else:
+           st.warning("please login")    
+        
 if (selected=="Predictor"):
+    if st.session_state.count == 1:
         bg="""
         <style>
         [data-testid="stAppViewContainer"]>.main{
@@ -134,4 +190,87 @@ if (selected=="Predictor"):
                         st.write(f'<span style="font-size: 20px;color:green;">You can consult this doctor: <span style="font-size:25px;color:black;"><b>{name.tolist()[i]}</b></span><br>at <span style="font-size:25px;color:black;"><b>{hospital.tolist()[i]}</b></span><br>for hospital address tap link <b><a href={link.tolist()[i]}><span style="font-size:25px;color:black;">Map_Link</span></a></b></span>',unsafe_allow_html=True)
                 
                         
-  
+    else:
+        st.warning("please login")
+
+if (selected=="Login"):
+    sb="""
+    <style>
+    [class="css-vk3wp9 e1fqkh3o11"]{
+     background-image: linear-gradient(to right bottom,pink,violet,#87cefa);
+    }
+    </style>"""
+    log="""
+    <style>
+    [class="main css-uf99v8 egzxvld5"]{
+        background-image: linear-gradient(to right bottom,#FFFFFF,#87CEEB);
+    }
+    </style>"""
+    st.markdown(log,unsafe_allow_html=True)
+    st.markdown(sb,unsafe_allow_html=True)
+    def make_hashes(password):
+        return hashlib.sha256(str.encode(password)).hexdigest()
+
+    def check_hashes(password,hashed_text):
+        if make_hashes(password) == hashed_text:
+            return hashed_text
+        return False
+    import sqlite3 
+    conn = sqlite3.connect('data2.db')
+    c = conn.cursor()
+    # DB  Functions
+    def create_usertable():
+        c.execute('CREATE TABLE IF NOT EXISTS user1table(username TEXT,password TEXT,email TEXT PRIMARY KEY,dob DATE,phone TEXT)')
+    def add_userdata(username,password,email,dob,phone):
+        c.execute('INSERT INTO user1table(username,password,email,dob,phone) VALUES (?,?,?,?,?)',(username,password,email,dob,phone))
+        conn.commit()
+
+    def login_user(email,password):
+        c.execute('SELECT * FROM user1table WHERE email =? AND password = ?',(email,password))
+        data = c.fetchall()
+        return data
+    def already(email,phone):
+        c.execute('SELECT * FROM user1table WHERE email =? OR phone= ?',(email,phone))
+        data = c.fetchall()
+        return data
+    def view_all_users():
+        c.execute('SELECT * FROM user1table')
+        data = c.fetchall()
+        return data
+    import datetime
+    select=st.selectbox("Login/Signup",options=("Login","Signup"))
+    if select=="Login":
+        st.subheader("Login Section")
+        mail = st.text_input("Email")
+        password = st.text_input("Password",type='password')
+        if st.button("Login"):
+                create_usertable()
+                hashed_pswd = make_hashes(password)
+                result = login_user(mail,check_hashes(password,hashed_pswd))
+                if result:
+                   st.balloons()
+                   st.success("login successfull")
+                   st.session_state.count =1
+                else:
+                    st.session_state.count =0
+                    st.error("Incorrect Username/Password")
+    if select=="Signup":
+        st.subheader("Create New Account")
+        new_user = st.text_input("Name")
+        new_password = st.text_input("Strong_Password",type='password')
+        new_email = st.text_input("Email")
+        new_dob = st.date_input("When\'s your birthday",datetime.date(2000,1,1))
+        new_phone=st.text_input("Phone",max_chars=10)
+        regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
+        if st.button("Signup"):
+            if len(new_user)<6 or len(new_password)<6 or not re.fullmatch(regex,new_email) or len(new_phone)<10:
+                st.error('please fill details correctly')
+            else:   
+                if already(new_email,new_phone):
+                    st.warning('Already had an account/please login')
+                else:    
+                    create_usertable()
+                    add_userdata(new_user,make_hashes(new_password),new_email,new_dob,new_phone)
+                    st.success("You have successfully created a valid Account")
+                    st.info("Go to Login Menu to login")
+                       
