@@ -3,14 +3,11 @@ from streamlit_option_menu import option_menu
 import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
-import warnings
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 from sklearn.ensemble import StackingClassifier
 from sklearn.naive_bayes import GaussianNB
-import requests
 st.set_page_config(page_title="HNN",page_icon="logo1.png",layout="wide")
-warnings.filterwarnings("ignore")
 with st.sidebar:
     selected=option_menu("Menu",["Home","Predictor"])
 if (selected=="Predictor"):
