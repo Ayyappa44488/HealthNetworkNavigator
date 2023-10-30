@@ -9,7 +9,7 @@ from sklearn.ensemble import StackingClassifier
 from sklearn.naive_bayes import GaussianNB
 st.set_page_config(page_title="HNN",page_icon="logo1.png",layout="wide")
 with st.sidebar:
-    selected=option_menu("Menu",["Home","Predictor"])
+    selected=option_menu("Menu",["Predictor"])
 if (selected=="Predictor"):
         bg="""
         <style>
