@@ -17,7 +17,7 @@ import re
 st.set_page_config(page_title="HNN",page_icon="logo1.png",layout="wide")
 warnings.filterwarnings("ignore")
 with st.sidebar:
-    selected=option_menu("Menu",["Predictor"])
+    selected=option_menu("Menu",["Login","Home","Predictor"])
 if 'count' not in st.session_state:
 	st.session_state.count = 0
 if (selected=="Home"):
