@@ -1,6 +1,4 @@
 import streamlit as st
-# import hashlib
-import base64
 from streamlit_option_menu import option_menu
 import pandas as pd
 import numpy as np
@@ -10,55 +8,11 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 from sklearn.ensemble import StackingClassifier
 from sklearn.naive_bayes import GaussianNB
-from streamlit_lottie import st_lottie
 import requests
 st.set_page_config(page_title="HNN",page_icon="logo1.png",layout="wide")
 warnings.filterwarnings("ignore")
 with st.sidebar:
     selected=option_menu("Menu",["Home","Predictor"])
-if (selected=="Home"):
-        # if st.session_state.count == 1:
-            def add_bg_from_local(image_file):
-                with open(image_file, "rb") as image_file:
-                    encoded_string = base64.b64encode(image_file.read())
-                st.markdown(
-                f"""
-                <style>
-                .stApp {{
-                    background-image: url(data:image/{"jpg"};base64,{encoded_string.decode()});
-                    background-size: cover
-                }}
-                </style>
-                """,
-                unsafe_allow_html=True
-                )
-            css = """
-            body{
-            background-image:url(img);
-            background-size: cover;
-            text-align:center;
-            color:Gray;
-            }
-            [data-testid="stImage"]{
-            padding-top:5px;
-            margin-left: auto;
-            margin-right: auto;
-            height:30%;
-            width:30%;
-            }"""
-            st.write(f'<style>{css}</style>', unsafe_allow_html=True)
-            st.write('<span style="font-size:30px;color:white"><b>⚕️Health Network Navigator(HNN)⚕️</b></span>',unsafe_allow_html=True)
-            st.image("logo1.png")
-            st.write('<span style="font-size:30px;color:white"><b>🔍Modern way to predict the disease by provided symptoms and find the best doctor to cure🔎</b></span>',unsafe_allow_html=True) 
-            add_bg_from_local('black_back.jpg')
-            def load_lottieurl(url):
-                r=requests.get(url)
-                if r.status_code!=200:
-                    return None
-                return r.json() 
-            lottie_coding=load_lottieurl("https://assets1.lottiefiles.com/private_files/lf30_tul1qoqd.json")
-            st_lottie(lottie_coding,height=300,key="coding")   
-        
 if (selected=="Predictor"):
         bg="""
         <style>
